@@ -1,0 +1,45 @@
+# kino-animation
+
+```elixir
+Mix.install([
+  {:kino_vega_lite, "~> 0.1.3"}
+])
+```
+
+## Section
+
+```elixir
+alias VegaLite, as: Vl
+
+vl_widget =
+  Vl.new(width: 800, height: 400)
+  |> VegaLite.mark(:point, tooltip: true)
+  |> VegaLite.encode_field(:x, "x", type: :quantitative)
+  |> VegaLite.encode_field(:y, "y", type: :quantitative)
+  |> Kino.VegaLite.new()
+  |> Kino.render()
+
+plot = fn x, y ->
+  points =
+    [x, y]
+    |> Enum.zip()
+    |> Enum.map(fn {x, y} -> %{x: x, y: y} end)
+
+  Kino.VegaLite.clear(vl_widget)
+  Kino.VegaLite.push_many(vl_widget, points)
+end
+```
+
+```elixir
+target_func = fn x, t -> :math.sin((x - t) * :math.pi() * 2) end
+x = for i <- 0..100, do: i / 100
+
+for i <- 0..1000 do
+  t = i / 100
+  y = for x1 <- x, do: target_func.(x1, t)
+  plot.(x, y)
+  Process.sleep(20)
+end
+
+nil
+```
